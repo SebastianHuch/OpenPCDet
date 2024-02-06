@@ -1,6 +1,7 @@
 import os
 import csv
 import pickle
+import sys
 
 import numpy as np
 import pandas as pd
@@ -9,7 +10,8 @@ import matplotlib.patches as mpatches
 from matplotlib import rc
 from sklearn.manifold import TSNE
 import statsmodels.api as sm
-from umap.umap_ import UMAP
+if not sys.version.startswith("3.12"):
+    from umap.umap_ import UMAP
 
 
 fontsize = 28
@@ -218,7 +220,10 @@ def extract_glob_feats(runs):
                             # Check if the epoch folder exists
                             if os.path.exists(epoch_folder):
                                 # Define the path to the pkl file
-                                pkl_file_path = os.path.join(epoch_folder, "test", f"glob_feat_{epoch}.pkl")
+                                if "s2r" in epoch_folder:
+                                    pkl_file_path = os.path.join(epoch_folder, "val", f"glob_feat_{epoch}.pkl")
+                                else:
+                                    pkl_file_path = os.path.join(epoch_folder, "test", f"glob_feat_{epoch}.pkl")
 
                                 # Check if the pkl file exists
                                 if os.path.exists(pkl_file_path):
@@ -471,6 +476,9 @@ def plot_boxplot_paper(colors, runs):
                                  bean_mean_color='black', bean_mean_size=1.0,
                                  violin_fc=colors[n],
                                  violin_alpha=1.0)
+                if data_by_eval_dataset.shape[0] == 1:
+                    # if only one run selected, duplicate to prevent error in beanplot
+                    data_by_eval_dataset = np.tile(data_by_eval_dataset,(2, 1))
                 if np.all(data_by_eval_dataset.T[n] == data_by_eval_dataset.T[n][0]):
                     # if values from all 5 runs are identical, add +1e-12 to last run to prevent error in beanplot
                     data_by_eval_dataset.T[n][-1] += 1e-12
@@ -513,6 +521,8 @@ def plot_boxplot_paper(colors, runs):
                         labels.append("Sim-Noise")
                     elif training_dataset == "sim_":
                         labels.append("Sim\n(Source)")
+                    else:
+                        labels.append("Other")
             else:
                 for training_dataset in training_datasets:
                     if training_dataset == "real_":
@@ -614,7 +624,7 @@ def plot_tsne(extracted_glob_feats, evaluation_datasets, training_datasets, eval
                         tsne_labels.extend(labels)
 
             # Use t-SNE to reduce the dimensionality to 2
-            tsne = TSNE(n_components=2, learning_rate='auto', init='pca', perplexity=perplexity, method="barnes_hut", verbose=True, n_iter=1000)
+            tsne = TSNE(n_components=2, learning_rate='auto', init='pca', perplexity=perplexity, method="barnes_hut", verbose=True, n_iter=500)
             tsne_result = tsne.fit_transform(tsne_points)
 
             # Scatter plot the t-SNE points with labels
@@ -641,6 +651,79 @@ def plot_tsne(extracted_glob_feats, evaluation_datasets, training_datasets, eval
 
             # Save the plot as an image (optional)
             plt.savefig(os.path.join(figs_dir, f"plot_tsne_{eval_dataset}_{eval_range}_{perplexity}.png"))
+
+def plot_tsne_3d(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=30):
+    # Create a directory to store figures
+    figs_dir = f"{network}_output_figs"
+    os.makedirs(figs_dir, exist_ok=True)
+
+    # Iterate over evaluation ranges
+    for eval_range in evaluation_ranges:
+        # Iterate over evaluation datasets
+        for eval_dataset in evaluation_datasets:
+            # Create a sub-plot for the current evaluation range and dataset
+            fig = plt.figure(figsize=(12, 8))
+            ax = fig.add_subplot(projection='3d')
+            plt.title(f"T-SNE Plot for Evaluation Range {eval_range} - Dataset {eval_dataset}")
+
+            # Create empty arrays to store t-SNE points and labels
+            tsne_points = np.array([])
+            tsne_labels = []
+
+            # Iterate over training datasets
+            for training_dataset in training_datasets:
+                for run in runs:
+                    # Define the key for extracted_glob_feats
+                    key = f"{network}_{training_dataset}_{run}_{eval_dataset}_{eval_range}"
+
+                    # Check if the key exists in extracted_glob_feats
+                    if key in extracted_glob_feats:
+                        data = extracted_glob_feats[key]
+
+                        # Convert data to a NumPy array
+                        data = np.array(data)
+
+                        # Append the t-SNE points to the array
+                        if tsne_points.size == 0:
+                            tsne_points = data
+                        else:
+                            tsne_points = np.vstack((tsne_points, data))
+
+                        # Create labels for the current training dataset
+                        labels = np.full(data.shape[0], training_dataset)
+
+                        # Append the labels to tsne_labels
+                        tsne_labels.extend(labels)
+
+            # Use t-SNE to reduce the dimensionality to 2
+            tsne = TSNE(n_components=3, learning_rate='auto', init='pca', perplexity=perplexity, method="barnes_hut", verbose=True, n_iter=500)
+            tsne_result = tsne.fit_transform(tsne_points)
+
+            # Scatter plot the t-SNE points with labels
+            unique_labels = np.asarray(training_datasets)
+
+            for i, label in enumerate(unique_labels):
+                x = tsne_result[np.array(tsne_labels) == label][:, 0]
+                y = tsne_result[np.array(tsne_labels) == label][:, 1]
+                z = tsne_result[np.array(tsne_labels) == label][:, 2]
+                ax.scatter(x, y, z, s=1, color=colors[i], label=label)
+
+                for run_idx, run in enumerate(runs):
+                    # Calculate the center of the cluster
+                    cluster_center_x = np.median(x[int(run_idx * len(x) / len(runs)) : int((run_idx + 1) * len(x) / len(runs))])
+                    cluster_center_y = np.median(y[int(run_idx * len(y) / len(runs)) : int((run_idx + 1) * len(y) / len(runs))])
+                    cluster_center_z = np.median(z[int(run_idx * len(z) / len(runs)) : int((run_idx + 1) * len(z) / len(runs))])
+
+                    # Add label as text at the cluster center
+                    ax.text(cluster_center_x, cluster_center_y, cluster_center_z + 2, f"{label}_{run}", fontsize=12, ha='center', va='center')
+
+            plt.xlabel("t-SNE Dimension 1")
+            plt.ylabel("t-SNE Dimension 2")
+            ax.legend()
+            ax.grid(True)
+
+            # Save the plot as an image (optional)
+            plt.savefig(os.path.join(figs_dir, f"plot_tsne3d_{eval_dataset}_{eval_range}_{perplexity}.png"))
 
 
 def plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=30):
@@ -862,8 +945,9 @@ def main():
 
 
     # t-SNE
-    #extracted_glob_feats = extract_glob_feats(runs)
-    #plot_tsne(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=3)
+    extracted_glob_feats = extract_glob_feats(runs)
+    plot_tsne(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
+    plot_tsne_3d(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
     #plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=5)
     #plot_umap_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=5)
 
@@ -886,17 +970,20 @@ if __name__ == "__main__":
     # Define the list of training dataset names
     training_datasets = ["real_", "real2sim21_", "sim_"]
     training_datasets = ["sim_", "sim2real22_", "real_"]
-    training_datasets = ["sim_", "sim_noise_obj_", "sim2real23_", "sim2real20_", "sim2real21_", "sim2real22_", "real_"]
+    training_datasets = ["sim_", "sim2real22_",
+                          "sim2real_scene1", "sim2real_scene2", "sim2real_scene3",
+                         "real_"]
+    training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "KITTI"]
     num_real = 1
-    num_sim = 6
+    num_sim = 3
 
-    runs = [1, 2, 3, 4, 5]
+    runs = [6]
 
     # Define the list of evaluation ranges "0_33", "0_100"
-    evaluation_ranges = ["0_33"]
+    evaluation_ranges = ["0_33", "0_100"]
 
     # Define the list of evaluation datasets (real or sim)
-    evaluation_datasets = ["real"]
+    evaluation_datasets = ["KITTI"]
 
     # Select the network (pointrcnn or pointpillar)
     network = "pointrcnn"
@@ -906,7 +993,7 @@ if __name__ == "__main__":
     extracted_data_list = {}
 
     # Define the root directory
-    root_dir = "/mnt/ge75huw/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models"
+    root_dir = "/Volumes/ge75huw/01_Trainings/01_Sim2Real_OpenPCDet/indy/s2r_models"
 
     # Number of last epochs to consider for averaging/maxing
     last_n_epochs = 10  # Change this as needed
