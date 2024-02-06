@@ -947,7 +947,7 @@ def main():
     # t-SNE
     extracted_glob_feats = extract_glob_feats(runs)
     plot_tsne(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
-    plot_tsne_3d(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
+    #plot_tsne_3d(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
     #plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=5)
     #plot_umap_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=5)
 
@@ -970,20 +970,20 @@ if __name__ == "__main__":
     # Define the list of training dataset names
     training_datasets = ["real_", "real2sim21_", "sim_"]
     training_datasets = ["sim_", "sim2real22_", "real_"]
-    training_datasets = ["sim_", "sim2real22_",
-                          "sim2real_scene1", "sim2real_scene2", "sim2real_scene3",
-                         "real_"]
-    training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "KITTI"]
+    #training_datasets = ["sim_", "sim2real22_",
+    #                      "sim2real_scene1", "sim2real_scene2", "sim2real_scene3",
+    #                     "real_"]
+    #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "KITTI"]
     num_real = 1
-    num_sim = 3
+    num_sim = 2
 
-    runs = [6]
+    runs = [1,2,3,4,5]
 
     # Define the list of evaluation ranges "0_33", "0_100"
     evaluation_ranges = ["0_33", "0_100"]
 
     # Define the list of evaluation datasets (real or sim)
-    evaluation_datasets = ["KITTI"]
+    evaluation_datasets = ["real"]
 
     # Select the network (pointrcnn or pointpillar)
     network = "pointrcnn"
@@ -993,7 +993,7 @@ if __name__ == "__main__":
     extracted_data_list = {}
 
     # Define the root directory
-    root_dir = "/Volumes/ge75huw/01_Trainings/01_Sim2Real_OpenPCDet/indy/s2r_models"
+    root_dir = "/Volumes/ge75huw/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models"
 
     # Number of last epochs to consider for averaging/maxing
     last_n_epochs = 10  # Change this as needed
