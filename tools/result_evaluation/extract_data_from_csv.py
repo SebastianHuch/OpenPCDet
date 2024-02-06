@@ -17,9 +17,10 @@ if not sys.version.startswith("3.12"):
 fontsize = 28
 plt.rcParams["font.size"] = str(fontsize)
 rc('axes', linewidth=2)
-plt.rcParams["font.family"] = ["Times New Roman"]
+font_name = "Arial"
+plt.rcParams["font.family"] = [font_name]
 
-font = {'family': ['Times New Roman'],
+font = {'family': [font_name],
                 'color': 'black',
                 'size': fontsize,
                 }
@@ -465,7 +466,7 @@ def plot_boxplot_paper(colors, runs):
 
             # Font
             plt.rcParams["font.size"] = str(fontsize)
-            plt.rcParams["font.family"] = ["Times New Roman"]
+            plt.rcParams["font.family"] = [font_name]
 
             # Get the data for the current evaluation dataset from combined_data
             data_by_eval_dataset = combined_data[:, :, i]
@@ -558,7 +559,7 @@ def plot_boxplot_paper(colors, runs):
                         break  # Once a match is found, exit the inner loop
 
             axs.set_ylabel(f"3D AP ({iou_thresh}) in %", fontdict=font, labelpad=15)
-            title = f"Range: [{range_list[0]} m, {range_list[1]} m]" if range_list[1] == "100.0" else f"Range: [{range_list[0]} m, {range_list[1]} m["
+            title = f"Range: [{range_list[0]} m, {range_list[1]} m]" if range_list[1] == "100.0" else f"Range: [{range_list[0]} m, {range_list[1]} m)"
             axs.set_title(title, fontsize=fontsize, pad=15, fontdict=font)
             axs.set_ylim(0, 100)
 
@@ -752,7 +753,7 @@ def plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets
 
             # Font
             plt.rcParams["font.size"] = str(fontsize)
-            plt.rcParams["font.family"] = ["Times New Roman"]
+            plt.rcParams["font.family"] = [font_name]
 
             # Create empty arrays to store t-SNE points and labels
             tsne_points = np.array([])
@@ -856,7 +857,7 @@ def plot_umap_paper(extracted_glob_feats, evaluation_datasets, training_datasets
 
             # Font
             plt.rcParams["font.size"] = str(fontsize)
-            plt.rcParams["font.family"] = ["Times New Roman"]
+            plt.rcParams["font.family"] = [font_name]
 
             # Create empty arrays to store t-SNE points and labels
             umap_points = np.array([])
@@ -945,8 +946,8 @@ def main():
 
 
     # t-SNE
-    extracted_glob_feats = extract_glob_feats(runs)
-    plot_tsne(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
+    #extracted_glob_feats = extract_glob_feats(runs)
+    #plot_tsne(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
     #plot_tsne_3d(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=100)
     #plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=5)
     #plot_umap_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=5)
