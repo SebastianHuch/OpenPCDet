@@ -14,7 +14,7 @@ if not sys.version.startswith("3.12"):
     from umap.umap_ import UMAP
 
 
-fontsize = 28
+fontsize = 20
 plt.rcParams["font.size"] = str(fontsize)
 rc('axes', linewidth=2)
 font_name = "Arial"
@@ -976,8 +976,9 @@ if __name__ == "__main__":
                          "real_"]
     training_datasets = ["sim_", "sim2real_scene2", "real_"]
     #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "CARLA2KITTI_SCENE1", "CARLA2KITTI_SCENE2", "CARLA2KITTI_SCENE3", "KITTI"]
-    num_real = 1
-    num_sim = 2
+    num_real = sum([1 for name in training_datasets if name[:4] == "real" or name[:5] == "KITTI"])
+    num_sim = sum([1 for name in training_datasets if name[:3] == "sim" or name[:5] == "CARLA"])
+    assert num_sim + num_real == len(training_datasets)
 
     runs = [1,2,3,4,5]  # [1,2,3,4,5] or [6,7,8,9,10]
 
