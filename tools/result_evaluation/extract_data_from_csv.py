@@ -528,8 +528,10 @@ def plot_boxplot_paper(colors, runs):
                 for training_dataset in training_datasets:
                     if training_dataset == "real_":
                         labels.append("Real\n(Target)")
+                    elif training_dataset[:8] == "sim2real" and "scene" in training_dataset:
+                        labels.append("Sim-to-Real\nScene Full")
                     elif training_dataset[:8] == "sim2real":
-                        labels.append("Sim-to-Real")
+                        labels.append("Sim-to-Real\nObject Full")
                     elif training_dataset[:8] == "real2sim":
                         labels.append("Real-to-Sim")
                     elif training_dataset[:9] == "sim_noise":
@@ -971,10 +973,10 @@ if __name__ == "__main__":
     # Define the list of training dataset names
     training_datasets = ["real_", "real2sim21_", "sim_"]
     training_datasets = ["sim_", "sim2real22_", "real_"]
-    training_datasets = ["sim_", "sim2real22_",
-                          "sim2real_scene1", "sim2real_scene2", "sim2real_scene3",
-                         "real_"]
-    training_datasets = ["sim_", "sim2real_scene2", "real_"]
+    #training_datasets = ["sim_",
+    #                      "sim2real_scene2", "sim2real_scene3", "sim2real_scene1",
+    #                     "real_"]
+    #training_datasets = ["sim_", "sim2real_scene2", "real_"]
     #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "CARLA2KITTI_SCENE1", "CARLA2KITTI_SCENE2", "CARLA2KITTI_SCENE3", "KITTI"]
     num_real = sum([1 for name in training_datasets if name[:4] == "real" or name[:5] == "KITTI"])
     num_sim = sum([1 for name in training_datasets if name[:3] == "sim" or name[:5] == "CARLA"])
