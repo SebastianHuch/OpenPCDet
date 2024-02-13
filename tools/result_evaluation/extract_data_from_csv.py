@@ -977,6 +977,7 @@ if __name__ == "__main__":
                           "sim2real_scene2", "sim2real_scene3", "sim2real_scene1",
                          "real_"]
     training_datasets = ["sim_", "sim2real_scene2", "real_"]
+    training_datasets = ["sim_", "sim2real_scene1", "sim2real_scene3", "sim2real_scene2", "real_"]
     #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "CARLA2KITTI_SCENE1", "CARLA2KITTI_SCENE2", "CARLA2KITTI_SCENE3", "KITTI"]
     num_real = sum([1 for name in training_datasets if name[:4] == "real" or name[:5] == "KITTI"])
     num_sim = sum([1 for name in training_datasets if name[:3] == "sim" or name[:5] == "CARLA"])
