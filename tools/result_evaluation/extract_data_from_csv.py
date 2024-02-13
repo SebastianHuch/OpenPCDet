@@ -971,14 +971,15 @@ if __name__ == "__main__":
     # Define the list of training dataset names
     training_datasets = ["real_", "real2sim21_", "sim_"]
     training_datasets = ["sim_", "sim2real22_", "real_"]
-    #training_datasets = ["sim_", "sim2real22_",
-    #                      "sim2real_scene1", "sim2real_scene2", "sim2real_scene3",
-    #                     "real_"]
-    #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "KITTI"]
+    training_datasets = ["sim_", "sim2real22_",
+                          "sim2real_scene1", "sim2real_scene2", "sim2real_scene3",
+                         "real_"]
+    training_datasets = ["sim_", "sim2real_scene2", "real_"]
+    #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "CARLA2KITTI_SCENE1", "CARLA2KITTI_SCENE2", "CARLA2KITTI_SCENE3", "KITTI"]
     num_real = 1
     num_sim = 2
 
-    runs = [1,2,3,4,5]
+    runs = [1,2,3,4,5]  # [1,2,3,4,5] or [6,7,8,9,10]
 
     # Define the list of evaluation ranges "0_33", "0_100"
     evaluation_ranges = ["0_33", "0_100"]
