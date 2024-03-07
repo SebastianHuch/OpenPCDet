@@ -427,8 +427,8 @@ def plot_boxplot_paper(colors, runs):
                   5: tuple(np.asarray((49, 130, 189)) / 255),
                   6: tuple(np.asarray((190, 0, 0)) / 255)}
     else:
-        colors = {0: tuple(np.asarray((158, 202, 225)) / 255),
-                  1: tuple(np.asarray((49, 130, 189)) / 255),
+        colors = {0: tuple(np.asarray((49, 130, 189)) / 255),
+                  1: tuple(np.asarray((158, 202, 225)) / 255),
                   2: tuple(np.asarray((255, 158, 132)) / 255),
                   3: tuple(np.asarray((190, 0, 0)) / 255)}
 
@@ -973,11 +973,11 @@ if __name__ == "__main__":
     # Define the list of training dataset names
     training_datasets = ["real_", "real2sim21_", "sim_"]
     training_datasets = ["sim_", "sim2real22_", "real_"]
-    training_datasets = ["sim_",
-                          "sim2real_scene2", "sim2real_scene3", "sim2real_scene1",
-                         "real_"]
-    training_datasets = ["sim_", "sim2real_scene2", "real_"]
-    training_datasets = ["sim_", "sim2real_scene1", "sim2real_scene3", "sim2real_scene2", "real_"]
+    #training_datasets = ["sim_",
+    #                      "sim2real_scene2", "sim2real_scene3", "sim2real_scene1",
+    #                     "real_"]
+    #training_datasets = ["sim_", "sim2real_scene2", "real_"]
+    #training_datasets = ["sim_", "sim2real_scene1", "sim2real_scene3", "sim2real_scene2", "real_"]
     #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "CARLA2KITTI_SCENE1", "CARLA2KITTI_SCENE2", "CARLA2KITTI_SCENE3", "KITTI"]
     num_real = sum([1 for name in training_datasets if name[:4] == "real" or name[:5] == "KITTI"])
     num_sim = sum([1 for name in training_datasets if name[:3] == "sim" or name[:5] == "CARLA"])
@@ -999,7 +999,9 @@ if __name__ == "__main__":
     extracted_data_list = {}
 
     # Define the root directory
-    root_dir = "/Volumes/ge75huw/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models"
+    root_dir = "/Volumes/SSD2TB/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models"
+    # /Volumes/ge75huw/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models
+    # /Volumes/SSD2TB/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models
 
     # Number of last epochs to consider for averaging/maxing
     last_n_epochs = 10  # Change this as needed
