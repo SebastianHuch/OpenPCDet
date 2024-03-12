@@ -427,10 +427,10 @@ def plot_boxplot_paper(colors, runs):
                   5: tuple(np.asarray((49, 130, 189)) / 255),
                   6: tuple(np.asarray((190, 0, 0)) / 255)}
     else:
-        colors = {0: tuple(np.asarray((49, 130, 189)) / 255),
-                  1: tuple(np.asarray((158, 202, 225)) / 255),
-                  2: tuple(np.asarray((255, 158, 132)) / 255),
-                  3: tuple(np.asarray((190, 0, 0)) / 255)}
+        colors = {0: tuple(np.asarray((0,101,189)) / 255),
+                  1: tuple(np.asarray((162,173,0)) / 255),
+                  2: tuple(np.asarray((0, 0, 0)) / 255),
+                  3: tuple(np.asarray((227,114,34)) / 255)}
 
         if num_real > num_sim:
             colors_active = [0, 2, 3]
