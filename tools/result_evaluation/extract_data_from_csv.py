@@ -418,7 +418,7 @@ def plot_results(colors, runs):
 
 
 def plot_boxplot_paper(colors, runs):
-    if num_real + num_sim > 3:
+    if num_real + num_sim > 4:
         colors = {0: tuple(np.asarray((158, 202, 225)) / 255),
                   1: tuple(np.asarray((44,162,95)) / 255),
                   2: tuple(np.asarray((44,162,95)) / 255),
@@ -426,6 +426,17 @@ def plot_boxplot_paper(colors, runs):
                   4: tuple(np.asarray((44,162,95)) / 255),
                   5: tuple(np.asarray((49, 130, 189)) / 255),
                   6: tuple(np.asarray((190, 0, 0)) / 255)}
+        colors_label = colors
+    elif num_real + num_sim == 4:
+        colors = {0: tuple(np.asarray((0, 101, 189)) / 255),
+                  1: tuple(np.asarray((162, 173, 0)) / 255),
+                  2: tuple(np.asarray((162, 173, 0)) / 255),
+                  3: tuple(np.asarray((227, 114, 34)) / 255)}
+        colors_label = {0: tuple(np.asarray((0, 101, 189)) / 255),
+                        1: tuple(np.asarray((162, 173, 0)) / 255),
+                        2: tuple(np.asarray((162, 173, 0)) / 255),
+                        3: tuple(np.asarray((162, 173, 0)) / 255),
+                        4: tuple(np.asarray((227, 114, 34)) / 255)}
     else:
         colors = {0: tuple(np.asarray((0,101,189)) / 255),
                   1: tuple(np.asarray((162,173,0)) / 255),
@@ -438,6 +449,7 @@ def plot_boxplot_paper(colors, runs):
             colors_active = [0, 1, 3]
 
         colors = {num:val for num, val in enumerate([val for key, val in colors.items() if key in colors_active])}
+        colors_label = colors
 
     ranges = ["0.0", "33.3", "66.6", "100.0"]
 
@@ -458,8 +470,10 @@ def plot_boxplot_paper(colors, runs):
         # Iterate over evaluation datasets
         for i, eval_dataset in enumerate(evaluation_datasets):
             # Create a new figure with a single subplot for both boxplots
-            if num_real + num_sim > 3:
+            if num_real + num_sim > 4:
                 figsize = (18, 9)
+            elif num_real + num_sim == 4:
+                figsize = (7.5, 9)
             else:
                 figsize = (7.5, 9)
             fig, axs = plt.subplots(1, 1, figsize=figsize)
@@ -500,7 +514,7 @@ def plot_boxplot_paper(colors, runs):
 
             # Consistent Labels
             labels = []
-            if num_real + num_sim > 3:
+            if num_real + num_sim > 4:
                 for training_dataset in training_datasets:
                     if training_dataset == "real_":
                         labels.append("Real\n(Target)")
@@ -524,6 +538,16 @@ def plot_boxplot_paper(colors, runs):
                         labels.append("Sim\n(Source)")
                     else:
                         labels.append("Other")
+            elif num_real + num_sim == 4:
+                for training_dataset in training_datasets:
+                    if training_dataset == "CARLA":
+                        labels.append("CARLA\n(Source)")
+                    elif training_dataset == "KITTI":
+                        labels.append("KITTI\n(Target)")
+                    elif training_dataset[:17] == "CARLA2KITTI_SCENE":
+                        labels.append("\nScene")
+                    elif training_dataset[:11] == "CARLA2KITTI":
+                        labels.append("\nObject")
             else:
                 for training_dataset in training_datasets:
                     if training_dataset == "real_":
@@ -540,14 +564,27 @@ def plot_boxplot_paper(colors, runs):
                         labels.append("Sim\n(Source)")
 
             # Set the x-ticks positions and labels
-            x_ticks_positions = np.arange(1, len(training_datasets) + 1)
-            x_ticks_labels = labels
+            if num_real + num_sim == 4:
+                x_ticks_positions = [1.0, 2.0, 2.5, 3.0, 4.0]
+                x_ticks_labels = labels
+                x_ticks_labels.insert(2, "CARLA-to-KITTI")
+            else:
+                x_ticks_positions = np.arange(1, len(training_datasets) + 1)
+                x_ticks_labels = labels
 
             axs.set_xticks(x_ticks_positions)
             axs.set_xticklabels(x_ticks_labels, rotation=00)
             axs.tick_params(axis='x', which='both', bottom=True, top=False)
             axs.tick_params(axis='x', which='minor', bottom=False)
             axs.tick_params(axis='both', which='major', pad=15)
+
+            for label, tick in zip(axs.get_xticklabels(), axs.xaxis.get_major_ticks()):
+                if tick.get_loc() == 2.5:
+                    tick.tick1line.set_visible(False)  # This hides the tick on the bottom
+                    tick.tick2line.set_visible(False)  # This hides the tick on the top (if applicable)
+
+            for label_idx, label in enumerate(axs.get_xticklabels()):
+                label.set_color(colors_label[label_idx])
 
             # Set the x-axis label
             axs.set_xlabel("Training Dataset", labelpad=15, fontdict=font)
@@ -730,17 +767,23 @@ def plot_tsne_3d(extracted_glob_feats, evaluation_datasets, training_datasets, e
 
 
 def plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets, evaluation_ranges, runs, colors, perplexity=30):
-    colors = {0: tuple(np.asarray((190, 0, 0)) / 255),
-              1: tuple(np.asarray((255, 158, 132)) / 255),
-              2: tuple(np.asarray((49, 130, 189)) / 255),
-              3: tuple(np.asarray((158, 202, 225)) / 255)}
-
-    if num_real > num_sim:
-        colors_active = [0, 1, 3]
+    if num_real + num_sim == 4:
+        colors = {0: tuple(np.asarray((0, 101, 189)) / 255),
+                  1: tuple(np.asarray((162, 173, 0)) / 255),
+                  2: tuple(np.asarray((162, 173, 0)) / 255),
+                  3: tuple(np.asarray((227, 114, 34)) / 255)}
     else:
-        colors_active = [0, 2, 3]
+        colors = {0: tuple(np.asarray((0, 101, 189)) / 255),
+                  1: tuple(np.asarray((162, 173, 0)) / 255),
+                  2: tuple(np.asarray((0, 0, 0)) / 255),
+                  3: tuple(np.asarray((227, 114, 34)) / 255)}
 
-    colors = {num: val for num, val in enumerate([val for key, val in colors.items() if key in colors_active])}
+        if num_real > num_sim:
+            colors_active = [0, 2, 3]
+        else:
+            colors_active = [0, 1, 3]
+
+        colors = {num: val for num, val in enumerate([val for key, val in colors.items() if key in colors_active])}
 
     # Create a directory to store figures
     figs_dir = f"paper_{network}_figs"
@@ -797,6 +840,14 @@ def plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets
                         plot_labels.append("Sim-Noise")
                     elif training_dataset == "sim_":
                         plot_labels.append("Sim")
+                    elif training_dataset == "CARLA":
+                        plot_labels.append("CARLA")
+                    elif training_dataset == "KITTI":
+                        plot_labels.append("KITTI")
+                    elif training_dataset[:17] == "CARLA2KITTI_SCENE":
+                        plot_labels.append("CARLA-to-KITTI Scene")
+                    elif training_dataset[:11] == "CARLA2KITTI":
+                        plot_labels.append("CARLA-to-KITTI Object")
 
             # Use t-SNE to reduce the dimensionality to 2
             tsne = TSNE(n_components=2, learning_rate='auto', init='pca', perplexity=perplexity, method="barnes_hut", verbose=True, n_iter=1000)
@@ -814,7 +865,7 @@ def plot_tsne_paper(extracted_glob_feats, evaluation_datasets, training_datasets
 
             plt.legend()
             plt.legend((scatter),
-                       plot_labels,
+                       np.unique(plot_labels),
                        scatterpoints=1,
                        markerscale=2,
                        # loc='upper right',
@@ -961,24 +1012,38 @@ def main():
 
 if __name__ == "__main__":
     # Dataset association
-    # real_             REAL
-    # real2sim21_		R2S down5 1485 ONLY R2S
-    # sim_noise_obj_	NOISE
-    # sim2real20_		S2R down3 1479 sigma3
-    # sim2real21_		S2R down5 1483 sigma5
-    # sim2real22_		S2R down7 1484 BEST
-    # sim2real23_		S2R down7 1503 no-gan
-    # sim_			    SIM
+    # real_                 REAL
+    # real2sim21_		    R2S down5 1485 ONLY R2S
+    # sim_noise_obj_	    NOISE
+    # sim2real20_		    S2R down3 1479 sigma3
+    # sim2real21_		    S2R down5 1483 sigma5
+    # sim2real22_		    S2R down7 1484 BEST
+    # sim2real23_		    S2R down7 1503 no-gan
+    # sim_			        SIM
+
+    # sim2real_scene1	    S2R down7	1578
+    # sim2real_scene2	    S2R down3	1577 BEST
+    # sim2real_scene3	    S2R down5	1576
+
+    # KITTI			        REAL
+    # CARLA2KITTI2		    S2R down7	1588 (CD norm)
+    # CARLA2KITTI3		    S2R down5	1583 (CD norm) BEST
+    # CARLA			        SIM
+
+    # CARLA2KITTI_SCENE1    S2R-Scene down7	1595 BEST
+    # CARLA2KITTI_SCENE2    S2R-Scene down5	1598
+    # CARLA2KITTI_SCENE3    S2R-Scene down3	1596
 
     # Define the list of training dataset names
-    training_datasets = ["real_", "real2sim21_", "sim_"]
-    training_datasets = ["sim_", "sim2real22_", "real_"]
+    #training_datasets = ["real_", "real2sim21_", "sim_"]
+    #training_datasets = ["sim_", "sim2real22_", "real_"]
     #training_datasets = ["sim_",
     #                      "sim2real_scene2", "sim2real_scene3", "sim2real_scene1",
     #                     "real_"]
     #training_datasets = ["sim_", "sim2real_scene2", "real_"]
     #training_datasets = ["sim_", "sim2real_scene1", "sim2real_scene3", "sim2real_scene2", "real_"]
-    #training_datasets = ["CARLA", "CARLA2KITTI2", "CARLA2KITTI3", "CARLA2KITTI_SCENE1", "CARLA2KITTI_SCENE2", "CARLA2KITTI_SCENE3", "KITTI"]
+    #training_datasets = ["CARLA", "CARLA2KITTI3", "KITTI"]
+    training_datasets = ["CARLA", "CARLA2KITTI_SCENE1", "KITTI"]
     num_real = sum([1 for name in training_datasets if name[:4] == "real" or name[:5] == "KITTI"])
     num_sim = sum([1 for name in training_datasets if name[:3] == "sim" or name[:5] == "CARLA"])
     assert num_sim + num_real == len(training_datasets)
@@ -988,8 +1053,8 @@ if __name__ == "__main__":
     # Define the list of evaluation ranges "0_33", "0_100"
     evaluation_ranges = ["0_33", "0_100"]
 
-    # Define the list of evaluation datasets (real or sim)
-    evaluation_datasets = ["real"]
+    # Define the list of evaluation datasets (real or sim or KITTI or CARLA)
+    evaluation_datasets = ["KITTI"]
 
     # Select the network (pointrcnn or pointpillar)
     network = "pointrcnn"
@@ -999,7 +1064,7 @@ if __name__ == "__main__":
     extracted_data_list = {}
 
     # Define the root directory
-    root_dir = "/Volumes/SSD2TB/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models"
+    root_dir = "/Volumes/SSD2TB/01_Trainings/01_Sim2Real_OpenPCDet/indy/s2r_models"
     # /Volumes/ge75huw/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models
     # /Volumes/SSD2TB/01_Trainings/01_Sim2Real_OpenPCDet/indy/indy_models
 
